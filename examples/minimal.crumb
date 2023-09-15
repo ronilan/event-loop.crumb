@@ -1,0 +1,9 @@
+listeners = (list 
+  (list {(print "=")} void void void)
+)
+state = void
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})

@@ -1,0 +1,28 @@
+on_loop = {
+  center = (list (integer (divide (columns) 2)) (integer (divide (rows) 2)))
+  center_string = (join "\e[" (string (get center 1)) ";" (string (get center 0)) "H" "+")
+
+  <- (if (is state center) {
+    <- state
+  }{
+    (print "\e[2J\e[H")
+    (print "Resize window. Resize & Render on loop:"  loop_count)
+    (print center_string)
+    <- center
+  })
+
+}
+
+listeners = (list (list on_loop void void void))
+state = (list void void)
+
+// set up: hide cursor and clear
+(print "\e[?25l\e[2J\e[H")
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
+
+// tear down: show cursor and clear
+(print "\e[?25h\e[2J\e[H")

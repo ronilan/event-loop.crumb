@@ -1,0 +1,155 @@
+key_map = { sequence ->
+  kv_list = (list
+    "" "escape"
+    "[A" "up"
+    "[B" "down"
+    "[C" "right"
+    "[D" "left"
+    "[OP" "f1" // currently not reported by event
+    "[OQ" "f2" // currently not reported by event
+    "[OR" "f3" // currently not reported by event
+    "[OS" "f4" // currently not reported by event
+    "[15~" "f5"
+    "[17~" "f6"
+    "[18~" "f7"
+    "[19~" "f8"
+    "[20~" "f9"
+    "[21~" "f10"
+    "[24~" "f12"
+  )
+
+
+  key = (if (greater_than (length sequence) 1) {
+      <- (get sequence 1 (length sequence))
+    } {
+      <- ""
+  })
+  pos = (find kv_list key)
+  value = (if (is pos void) {<-void} {<- (get kv_list (add pos 1))})
+
+  <- (if (is value void) {<- ""} {<- value})
+}
+
+// starts the event loop
+// returns the final state
+start = { state listeners ->
+  // trigger events
+  trigger = { listener_index event_index ->
+    listener = (get listeners listener_index)
+      fn = (get listener event_index)
+      <- (if (is fn void) {
+        <- void
+      } {
+        <- (fn)
+      })
+  }
+
+  // each listener has a list on length 4 that looks like:
+  // (list on_loop on_keypress on_move on_click)
+  every_loop = { listener_index ->
+    <- (trigger listener_index 0) // on_loop
+  }
+
+  every_keypress = { listener_index ->
+    <- (trigger listener_index 1) // on_keypress
+  }
+
+  every_mouse_move = { listener_index ->
+    <- (trigger listener_index 2) // on_move
+  }
+
+  every_mouse_click = { listener_index ->
+    <- (trigger listener_index 3) // on_click
+  }
+
+  // ** event loop
+  result = (until "break" {state loop_count ->
+    // get current event
+    curr = (event)
+
+    // loop "synthetic event"
+    state = (reduce listeners { accum item index -> 
+      e = (every_loop index)
+      <- (if (is e void) {
+        <- accum
+      } {
+        <- e
+      })
+    } state)
+
+    // keypress
+    state = (if (and (greater_than (length curr) 0) (less_than (length curr) 6)) {
+      keypress_name = (if (not (is (get curr 0) "\e")) {
+            <- curr
+          } {
+            <- (key_map curr)
+          })
+
+      <- (reduce listeners { accum item index -> 
+        e = (every_keypress index)
+        <- (if (is e void) {
+          <- accum
+        } {
+          <- e
+        })
+      } state) 
+    } {<- state})
+
+    // mouse
+    state = (if (greater_than (length curr) 6) {
+        // base
+        // 0, 1, 2 - mouse button clicked (generally from left to right)
+        // 32 move - (35 means 32 + 3 button is "released")
+        // 64 scroll up  (64 means 64 + 0 button is pressed, thus scroll)
+        // modifiers
+        // +4 shift
+        // +8 meta
+        // +16 control
+        // e.g
+        // [<35;12;7M
+
+        <- (if (is (get curr 1 3) "[<") {
+          first_delimiter = (find curr ";")
+
+          mouse_code = (integer (get curr 3 first_delimiter))
+          mouse_row_column = (get curr (add first_delimiter 1) (subtract (length curr) 1))
+
+          second_delimiter = (find mouse_row_column ";")
+
+          mouse_xy = (list 
+            (subtract (integer (get mouse_row_column 0 second_delimiter)) 1)
+            (subtract (integer (get mouse_row_column (add 1 second_delimiter) (length mouse_row_column))) 1)
+          )
+
+          // mouse move
+          state = (reduce listeners { accum item index -> 
+            e = (every_mouse_move index)
+            <- (if (is e void) {
+              <- accum
+            } {
+              <- e
+            })
+          } state)
+
+          // mouse click
+          // note: currently not acting on modifiers
+          // click with modifier is ignored
+          state = (if (or (is mouse_code 32) (is mouse_code 0)) {
+            <- (reduce listeners { accum item index -> 
+              e = (every_mouse_click index)
+              <- (if (is e void) {
+                <- accum
+              } {
+                <- e
+              })
+            } state)
+          } {<- state})
+
+          <- state
+        } {<- state})
+    } {<- state})
+    <- state
+  } state)
+
+  <- result
+}

@@ -1,0 +1,80 @@
+// the rendering function
+render_on_user_event = { state ->
+  // clear and print
+  (print "\e[2J\e[H")
+  (print "The Fish will follow the mouse, click to change the fish, type to say things, escape to exit.")
+
+  // get escape code to move cursor to coordinate
+  cords = (get state 0)
+  coords_code = (join "\e[" (string (get cords 1)) ";" (string (get cords 0)) "H")
+
+  // get color code
+  color_code = (join  "\e[" (string (add 31 (remainder (get state 1) 7))) "m" )
+
+  // get fish emoji
+  fish_list = (list "🐠" "🐟" "🐡" "🐕")
+  fish = (get fish_list (remainder (get state 1) (length fish_list)))
+
+  // print fish
+  (print (join coords_code color_code "   " fish " " (get state 2) " \e[0m"))
+}
+
+// define initial state
+mouse_xy = (list (integer (divide (columns) 2)) (integer (divide (rows) 2))) // center the fish
+thing = 0
+text = "I say: "
+
+state = (list mouse_xy thing text)
+
+// define listeners
+on_keypress = {
+  <- (if (is keypress_name "escape") {
+    <- "break"
+  } {
+    // ignore enter to keep type test on one line
+    <- (if (is keypress_name "\n") {
+      <- state
+    } {
+      text = (get state 2)
+
+      state = (set state (insert text keypress_name ) 2)
+
+      (render_on_user_event state)
+      <- state
+    })
+  })
+}
+
+on_move = {
+  state = (set state mouse_xy 0)
+  
+  (render_on_user_event state)
+  <- state
+}
+
+on_click = {
+  state = (set state (add 1 (get state 1)) 1)
+
+  (render_on_user_event state)
+  <- state
+}
+
+listeners = (list (list
+  void //loop
+  on_keypress
+  on_move
+  on_click
+))
+
+// set up: hide cursor and clear
+(print "\e[?25l\e[2J\e[H")
+// initial render_on_user_event
+(render_on_user_event state)
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
+
+// tear down: show cursor and clear
+(print "\e[?25h\e[2J\e[H")
