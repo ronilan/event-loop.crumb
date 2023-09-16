@@ -31,10 +31,35 @@ state = void
 
 With Crumb's dynamic scoping, event functions are executed in `event-loop` scope. This allows event functions to "magically" access parameters defined within the event loop.
 
-The current implementation exposed the following:
-`loop-count`: `integer` - the number of loops since the event loop started. Available to all event functions.
+By virtue of being called from inside the `until` event loop all event functions ahve access to:
+`state`: `any` - the current state.
+`loop-count`: `integer` - the number of loops since the event loop started.
+
+The current implementation also exposes the following:
 `keypress_name`: `string` - the name of the key pressed detected (e.g `a`, `A` `up`). Available to the keypress event function (second in list).
 `mouse_xy`: `list` - the x (`number`) and y (`number`) coordinates  of the mouse with top left being `0 0`. Available to the mouse event functions (third and fourth in list).
+
+Each event function, if defined, is expected to return a modified state
+A minimal example that prints bars of increasing length will look like this:
+
+```
+on_loop = { 
+  (print (reduce (map (range state) {_ _ -> <- "="}) {accum item _ -> <- (join accum item)} "") "\n")
+  <- (add state 1)
+}
+
+listeners = (list 
+  (list on_loop void void void)
+)
+state = 1
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
+```
+
+
 
 ## Examples
 

@@ -1,0 +1,121 @@
+// mouse calculation
+// props: a list describing x y width and height of clickable area
+// mouse_xy: a list with current x y mouse position
+mouse_over = { props mouse_xy ->
+  // deconstruct for readability
+  x = (get props 0)
+  y = (get props 1)
+  width = (get props 2)
+  height = (get props 3)
+
+  row = (integer (get mouse_xy 1))
+  column = (integer (get mouse_xy 0))
+
+  // by calculating the position of on the screen 
+  // decide if the mouse is over the component. 
+  <- (if (and
+      (and 
+        (greater_than column (subtract x 1))
+        (less_than column (add x width 0))
+      )
+      (and 
+        (greater_than row (subtract y 1))
+        (less_than row (add y height 0))
+      )
+    )
+  {
+    <- 1
+  } {
+    <- void
+  })
+}
+
+// the rendering function
+render_on_user_event = { state ->
+  centerX = (add (integer (divide (columns) 2)) 1)
+  centerY = (add (integer (divide (rows) 2)) 1)
+
+
+  west = (join "\e[" (string centerY) ";0H" (get state 0))
+  north = (join "\e[0;" (string centerX) "H" (get state 1))
+  east =  (join "\e[" (string centerY) ";" (string (subtract (columns) 6)) "H" (get state 2))
+  south = (join "\e[" (string (rows)) ";" (string centerX) "H" (get state 3))
+  center = (join "\e[" (string centerY) ";" (string (subtract centerX 10)) "H" "Click Wind Directions")
+
+  (print west north east south center)
+}
+
+on_loop = {
+  state = (list "West   " "North  " "   East" "South  ")
+  
+  (render_on_user_event state)
+  <- state
+}
+
+on_click_west = {
+  clickable = (list 0 (integer (divide (rows) 2)) 7 1)
+  (if (is (mouse_over clickable mouse_xy) 1) {
+    state = (set state "Clicked" 0)
+    
+    (render_on_user_event state)
+    <- state
+  }{
+    <- state
+  })
+}
+
+on_click_north = {
+  clickable = (list (integer (divide (columns) 2)) 0 7 1)
+  (if (is (mouse_over clickable mouse_xy) 1) {
+    state = (set state "Clicked" 1)
+    
+    (render_on_user_event state)
+    <- state
+  }{
+    <- state
+  })
+}
+
+on_click_east = {
+  clickable = (list (subtract (columns) 6) (integer (divide (rows) 2)) 7 1)
+  (if (is (mouse_over clickable mouse_xy) 1) {
+    state = (set state "Clicked" 2)
+    
+    (render_on_user_event state)
+    <- state
+  }{
+    <- state
+  })
+}
+
+on_click_south = {
+  clickable = (list (integer (divide (columns) 2)) (subtract (rows) 1) 7 1)
+  (if (is (mouse_over clickable mouse_xy) 1) {
+    state = (set state "Clicked" 3)
+    
+    (render_on_user_event state)
+    <- state
+  }{
+    <- state
+  })
+}
+
+listeners = (list 
+  (list on_loop void void on_click_west)
+  (list on_loop void void on_click_north)
+  (list on_loop void void on_click_east)
+  (list on_loop void void on_click_south)
+)
+  state = (list "Left   " "  Top  " "   Right" "Bottom ")
+
+(print "\e[2J\e[H")
+
+// set up: hide cursor and clear
+(print "\e[?25l\e[2J\e[H")
+// initial render_on_user_event
+(render_on_user_event state)
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})

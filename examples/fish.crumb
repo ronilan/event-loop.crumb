@@ -46,10 +46,15 @@ on_keypress = {
 }
 
 on_move = {
-  state = (set state mouse_xy 0)
-  
-  (render_on_user_event state)
-  <- state
+  // fix mac os terminal issue
+  <- (if (is (multiply (get mouse_xy 0) (get mouse_xy 1)) 0) {
+    <- state
+  } {
+    state = (set state mouse_xy 0)
+
+    (render_on_user_event state)
+    <- state
+  })
 }
 
 on_click = {
