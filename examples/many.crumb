@@ -54,7 +54,7 @@ on_loop = {
 
 on_click_west = {
   clickable = (list 0 (integer (divide (rows) 2)) 7 1)
-  (if (is (mouse_over clickable mouse_xy) 1) {
+  <- (if (is (mouse_over clickable mouse_xy) 1) {
     state = (set state "Clicked" 0)
     
     (render_on_user_event state)
@@ -66,7 +66,7 @@ on_click_west = {
 
 on_click_north = {
   clickable = (list (integer (divide (columns) 2)) 0 7 1)
-  (if (is (mouse_over clickable mouse_xy) 1) {
+  <- (if (is (mouse_over clickable mouse_xy) 1) {
     state = (set state "Clicked" 1)
     
     (render_on_user_event state)
@@ -78,7 +78,7 @@ on_click_north = {
 
 on_click_east = {
   clickable = (list (subtract (columns) 6) (integer (divide (rows) 2)) 7 1)
-  (if (is (mouse_over clickable mouse_xy) 1) {
+  <- (if (is (mouse_over clickable mouse_xy) 1) {
     state = (set state "Clicked" 2)
     
     (render_on_user_event state)
@@ -90,7 +90,7 @@ on_click_east = {
 
 on_click_south = {
   clickable = (list (integer (divide (columns) 2)) (subtract (rows) 1) 7 1)
-  (if (is (mouse_over clickable mouse_xy) 1) {
+  <- (if (is (mouse_over clickable mouse_xy) 1) {
     state = (set state "Clicked" 3)
     
     (render_on_user_event state)

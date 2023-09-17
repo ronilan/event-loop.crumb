@@ -1,5 +1,7 @@
 listeners = (list 
-  (list {(print "=")} void void void)
+  (list {
+    (print "=")
+  } void void void)
 )
 state = void
 

@@ -35,12 +35,24 @@ on_keypress = {
     <- (if (is keypress_name "\n") {
       <- state
     } {
-      text = (get state 2)
+      <- (if (is keypress_name "delete") {
+        text = (get state 2)
+        <- (if (greater_than (length text) 0){
+          text = (get state 2)
+          state = (set state (delete text (subtract (length text) 1)) 2)
 
-      state = (set state (insert text keypress_name ) 2)
+          (render_on_user_event state)
+          <- state
+        }{
+          <- state
+        })
+      } {
+        text = (get state 2)
+        state = (set state (insert text keypress_name ) 2)
 
-      (render_on_user_event state)
-      <- state
+        (render_on_user_event state)
+        <- state
+      })
     })
   })
 }
@@ -58,6 +70,7 @@ on_move = {
 }
 
 on_click = {
+
   state = (set state (add 1 (get state 1)) 1)
 
   (render_on_user_event state)
