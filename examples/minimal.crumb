@@ -1,5 +1,5 @@
 listeners = (list 
-  (list {
+  (list void {
     (print "=")
   } void void void)
 )

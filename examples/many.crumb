@@ -30,8 +30,8 @@ mouse_over = { props mouse_xy ->
   })
 }
 
-// the rendering function
-render_on_user_event = { state ->
+// the reactive rendering function
+on_state = {
   centerX = (add (integer (divide (columns) 2)) 1)
   centerY = (add (integer (divide (rows) 2)) 1)
 
@@ -42,23 +42,21 @@ render_on_user_event = { state ->
   south = (join "\e[" (string (rows)) ";" (string centerX) "H" (get state 3))
   center = (join "\e[" (string centerY) ";" (string (subtract centerX 10)) "H" "Click Wind Directions")
 
+  // only side effect...
   (print west north east south center)
+
+  <- state
 }
 
 on_loop = {
-  state = (list "West   " "North  " "   East" "South  ")
-  
-  (render_on_user_event state)
-  <- state
+  // reset
+  <- (list "West   " "North  " "   East" "South  ")
 }
 
 on_click_west = {
   clickable = (list 0 (integer (divide (rows) 2)) 7 1)
   <- (if (is (mouse_over clickable mouse_xy) 1) {
-    state = (set state "Clicked" 0)
-    
-    (render_on_user_event state)
-    <- state
+    <- (set state "Clicked" 0)
   }{
     <- state
   })
@@ -67,10 +65,7 @@ on_click_west = {
 on_click_north = {
   clickable = (list (integer (divide (columns) 2)) 0 7 1)
   <- (if (is (mouse_over clickable mouse_xy) 1) {
-    state = (set state "Clicked" 1)
-    
-    (render_on_user_event state)
-    <- state
+    <- (set state "Clicked" 1)
   }{
     <- state
   })
@@ -79,10 +74,7 @@ on_click_north = {
 on_click_east = {
   clickable = (list (subtract (columns) 6) (integer (divide (rows) 2)) 7 1)
   <- (if (is (mouse_over clickable mouse_xy) 1) {
-    state = (set state "Clicked" 2)
-    
-    (render_on_user_event state)
-    <- state
+    <- (set state "Clicked" 2)
   }{
     <- state
   })
@@ -92,8 +84,7 @@ on_click_south = {
   clickable = (list (integer (divide (columns) 2)) (subtract (rows) 1) 7 1)
   <- (if (is (mouse_over clickable mouse_xy) 1) {
     state = (set state "Clicked" 3)
-    
-    (render_on_user_event state)
+
     <- state
   }{
     <- state
@@ -101,19 +92,20 @@ on_click_south = {
 }
 
 listeners = (list 
-  (list on_loop void void on_click_west)
-  (list on_loop void void on_click_north)
-  (list on_loop void void on_click_east)
-  (list on_loop void void on_click_south)
+  (list on_state on_loop void void on_click_west)
+  (list on_state on_loop void void on_click_north)
+  (list on_state on_loop void void on_click_east)
+  (list on_state on_loop void void on_click_south)
 )
-  state = (list "Left   " "  Top  " "   Right" "Bottom ")
+
+state = (list "West   " "North  " "   East" "South  ")
 
 (print "\e[2J\e[H")
 
 // set up: hide cursor and clear
 (print "\e[?25l\e[2J\e[H")
 // initial render_on_user_event
-(render_on_user_event state)
+(on_state)
 
 // event loop
 (use "./event-loop.crumb" {

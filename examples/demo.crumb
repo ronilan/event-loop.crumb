@@ -1,4 +1,4 @@
-on_loop = {
+on_state = {
   (print "\e[2J\e[H")
   (print
     (join
@@ -10,7 +10,13 @@ on_loop = {
     )
   )
 
-  state = (list loop_count "" (get state 2) "")
+  <- state
+}
+
+on_loop = {
+  state = (set state "" 1)
+  state = (set state "" 3)
+  state = (set state loop_count 0)
   <- state
 }
 
@@ -28,6 +34,7 @@ on_click = {
 
 listeners = (list 
   (list
+    on_state
     on_loop
     on_keypress
     on_move
@@ -39,6 +46,8 @@ state = (list 0 "" (list 0 0) "")
 
 // set up: hide cursor and clear
 (print "\e[?25l\e[2J\e[H")
+// initial render
+(on_state)
 
 // event loop
 (use "./event-loop.crumb" {

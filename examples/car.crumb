@@ -45,6 +45,7 @@ on_loop = {
   }
 
 listeners = (list (list
+  void // state
   on_loop //loop
   void // keypress
   void // move

@@ -13,7 +13,7 @@ on_loop = {
 
 }
 
-listeners = (list (list on_loop void void void))
+listeners = (list (list void on_loop void void void))
 state = (list void void)
 
 // set up: hide cursor and clear

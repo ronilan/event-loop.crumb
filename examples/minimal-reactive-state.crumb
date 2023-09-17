@@ -1,0 +1,19 @@
+on_loop = { 
+  <- (add state 1)
+}
+
+on_state = {
+  (print (reduce (map (range state) {_ _ -> <- "="}) {accum item _ -> <- (join accum item)} "") "\n")
+  <- state
+}
+
+listeners = (list 
+  (list on_state on_loop void void void)
+)
+
+state = 1
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
