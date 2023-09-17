@@ -1,10 +1,6 @@
 #!/bin/sh
 default="v0.0.1"
-
-arg=${1:-$default}
-len=${#arg}
-tag=$arg || $default
-
+checkout=${1:-$default}
 into=".tmp~crumb~inflate"
 
 build_and_clean() {
@@ -14,25 +10,21 @@ build_and_clean() {
   rm -rf $into
 }
 
-if [ "$len" = 40 ] # its is a sha
+if [ ${#checkout} = 40 ] # assumed to be a sha
 then
-  printf "\e[32m Building from SHA %s \e[0m \n" "$arg"
+  printf "\e[32mBuilding from SHA %s\e[0m\n" "$checkout"
   git clone https://github.com/liam-ilan/crumb.git $into
   cd $into || exit
-  git reset --hard "$arg"
-
+  git reset --hard "$checkout"
   build_and_clean
-
-  printf "\e[32m Crumb built successfully from %s! \e[0m \n" "$arg"
-elif [ "$(printf '%s' "$tag" | cut -c 1)" = "v" ] # its is a sha
-then # its is a tag
-  printf "\e[32m Building version %s \e[0m \n" "$tag"
-  git clone -c advice.detachedHead=false --branch "$tag" --depth 1 https://github.com/liam-ilan/crumb.git $into
+  printf "\e[32mCrumb built successfully from %s\e[0m\n" "$checkout"
+elif [ "$(printf '%s' "$checkout" | cut -c 1)" = "v" ] # its is a sha
+then # assumed a version tag
+  printf "\e[32mBuilding version %s \e[0m \n" "$checkout"
+  git clone -c advice.detachedHead=false --branch "$checkout" --depth 1 https://github.com/liam-ilan/crumb.git $into
   cd $into || exit
-
   build_and_clean
-
-  printf "\e[32m Crumb version %s built successfully!\e[0m \n" "$tag"
+  printf "\e[32mCrumb version %s built successfully\e[0m\n" "$checkout"
 else
-  printf "\e[31m %s not valid version tag nor SHA \e[0m \n" "$arg"
+  printf "\e[31m%s not valid version tag nor SHA \e[0m\n" "$checkout"
 fi
