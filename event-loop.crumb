@@ -39,12 +39,16 @@ start = { state listeners ->
 
   reduce_listeners = { event_index ->
     <- (reduce listeners { new_state listener listener_index ->
-      fn = (get listener event_index)
-      <- (if (is fn void) {
+      <- (if (is listener void) {
         <- new_state
       } {
-        state = new_state
-        <- (fn)
+        fn = (get listener event_index)
+        <- (if (is fn void) {
+          <- new_state
+        } {
+          state = new_state
+          <- (fn)
+        })
       })
     } state)
   }
