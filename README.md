@@ -2,7 +2,7 @@
 
 `event-loop.crumb` is a [Crumb](https://github.com/liam-ilan/crumb) usable providing a basic event loop.
 
-The event loop builds on Crumbs native `until` and `event` functions, providing the user with an abstracted way to interact with keypress and mouse events. Current implementation supports five events: state, loop, keypress, mouse move and mouse click.
+The event loop builds on Crumbs native `until` and `event` functions, providing the user with an abstracted way to interact with keypress and mouse events. Current implementation supports five events: **state**, **loop**, **keypress**, mouse **move** and mouse **click**.
 
 ## Usage
 
@@ -14,12 +14,12 @@ The event loop builds on Crumbs native `until` and `event` functions, providing 
 
 The `event-loop` function expects two parameters `state` and `listeners`
 - `state` is a data structure of the user choice that will persist between loops.
-- `listeners`: `list` - "entities" listening to events. Each "entity" is by itself a `list` containing exactly five event functions. Each of those functions will be called when each of the currently supported events happens. Listeners are proccessed in the order in which they are listed and the functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse move), 4 (mouse click) and finally 0 (state changed).
+- `listeners`: `list` - a list of "entities" listening to events. Each "entity" is by itself a `list` containing exactly five event functions. Each of those functions will be called when each of the currently supported events happens. Listeners are proccessed in the order in which they are listed and the functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse move), 4 (mouse click) and finally 0 (state changed).
 
 A minimal example that prints a never ending progress bar will look like this:
 ```
 listeners = (list 
-  (list void {(print "=")} void void void)
+  (list void {(print "=")} void void void) // state loop keypress move click
 )
 state = void
 
@@ -31,7 +31,7 @@ state = void
 
 With Crumb's dynamic scoping, event functions are executed in `event-loop` scope. This allows event functions to "magically" access parameters defined within the event loop.
 
-By virtue of being called from inside the `until` event loop all event functions ahve access to:
+By virtue of being called from inside the `until` event loop, all event functions ahve access to:
 `state`: `any` - the current state.
 `loop-count`: `integer` - the number of loops since the event loop started.
 
@@ -54,7 +54,7 @@ on_state = {
 }
 
 listeners = (list 
-  (list on_state on_loop void void void)
+  (list on_state on_loop void void void) // state loop keypress move click
 )
 
 state = 1
