@@ -124,7 +124,7 @@ start = { state listeners ->
     }{
       <- state
     })
-          
+
     <- state
   } state)
 
