@@ -1,9 +1,13 @@
 listeners = (list 
   (list void {
     (print "=")
+    // must return state
+    <- state
   } void void void)
 )
-state = void
+
+// state needs to be anything other than void for loop to run
+state = 0
 
 // event loop
 (use "./event-loop.crumb" {

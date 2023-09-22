@@ -29,7 +29,7 @@ state = (list mouse_xy thing text)
 // define listeners
 on_keypress = {
   <- (if (is keypress_name "escape") {
-    <- "break"
+    <- void
   } {
     // ignore enter to keep type test on one line
     <- (if (is keypress_name "\n") {

@@ -46,6 +46,8 @@ start = { state listeners ->
         <- (if (is fn void) {
           <- new_state
         } {
+          // fn is working on scope variable named state
+          // update it to what was previously reduces
           state = new_state
           <- (fn)
         })
@@ -54,7 +56,7 @@ start = { state listeners ->
   }
 
   // ** event loop
-  result = (until "break" {state loop_count ->
+  result = (until void {state loop_count ->
     // save state
     prev_state = state
     // get current event
@@ -121,7 +123,7 @@ start = { state listeners ->
     // state "synthetic event"
     state = (if (and 
       (not (is prev_state state))
-      (not (is "break" state))
+      (not (is void state))
     ) {
       <- (reduce_listeners 0)
     }{

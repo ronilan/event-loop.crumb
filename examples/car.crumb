@@ -1,10 +1,12 @@
-// define state
-state = void
+// define state - void exit loop
+state = ""
 
 // define listeners
 on_loop = {
     // returns a single frame of the animation
-    frame = {n ->
+    frame = { n ->
+      // slow down animation
+      n = (integer (add (divide n 2) 1))
 
       // message to display
       message = "                HELLO WORLD                "
@@ -20,7 +22,7 @@ on_loop = {
     }
 
     // calculate frame number
-    frame_number = (add (remainder loop_count 40) 1)
+    frame_number = (add (remainder loop_count 80) 1)
 
     // clear when animation loop
     (if (is frame_number 1) {(print "\e[H\e[J")})
@@ -38,16 +40,21 @@ on_loop = {
     // print floor
     (print "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n")
 
-    // wait to slow down animation
-    (wait 0.1)
-
     <- state
   }
 
+on_keypress = {
+  <- (if (is keypress_name "escape") {
+    <- void
+  } {
+    <- state
+  })
+}
+
 listeners = (list (list
-  void // state
+  "void" // state
   on_loop //loop
-  void // keypress
+  on_keypress // keypress
   void // move
   void // click
 ))
