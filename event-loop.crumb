@@ -49,7 +49,11 @@ start = { state listeners ->
           // fn is working on scope variable named state
           // update it to what was previously reduces
           state = new_state
-          <- (fn)
+          <- (if (is void state) {
+            <- void
+          } {
+            <- (fn)
+          })
         })
       })
     } state)
@@ -121,9 +125,8 @@ start = { state listeners ->
     } {<- state})
 
     // state "synthetic event"
-    state = (if (and 
-      (not (is prev_state state))
-      (not (is void state))
+    state = (if
+      (not (is prev_state state)
     ) {
       <- (reduce_listeners 0)
     }{
