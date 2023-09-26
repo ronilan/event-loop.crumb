@@ -171,7 +171,7 @@ chmod +x build-crumb.sh && ./build-crumb.sh
 
 Run:
 ```
-./crumb examples/10-print.crumb
+./crumb examples/demo.crumb
 ```
 
 ## Reference 
