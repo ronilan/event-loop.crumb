@@ -31,15 +31,15 @@ state = void
 
 With Crumb's dynamic scoping, event functions are executed in `event-loop` scope. This allows event functions to "magically" access parameters defined within the event loop.
 
-By virtue of being called from inside the `until` event loop, all event functions ahve access to:
-`state`: `any` - the current state.
-`loop-count`: `integer` - the number of loops since the event loop started.
+By virtue of being called from inside the `until` event loop, all event functions have access to:
+- `state`: `any` - the current state.
+- `loop-count`: `integer` - the number of loops since the event loop started.
 
 The current implementation also exposes the following:
-`keypress_name`: `string` - the name of the key pressed detected (e.g `a`, `A` `up`). Available to the keypress event function (third in list).
-`mouse_xy`: `list` - the x (`number`) and y (`number`) coordinates  of the mouse with top left being `0 0`. Available to the mouse event functions (fourth and fifth in list).
+- `keypress_name`: `string` - the name of the key pressed detected (e.g `a`, `A` `up`). Available to the keypress event function (third in list).
+- `mouse_xy`: `list` - the x (`number`) and y (`number`) coordinates  of the mouse with top left being `0 0`. Available to the mouse event functions (fourth and fifth in list).
 
-Each event function, if defined, is expected to return a modified state.
+Each event function, if defined, is expected to return a state (modified or unmodified).
 
 A minimal reactive example that prints bars of increasing length whenever the state changes will look like this:
 
@@ -67,7 +67,67 @@ state = 1
 
 ## Examples
 
-WIP
+The following example shows how to capture all event events and use the state event for rendering
+```
+on_state = {
+  (print "\e[2J\e[H")
+  (print
+    (join
+      (join "loop: " (string (get state 0))) "\n"
+      (join "key: " (get state 1)) "\n"
+      (join "mouse xy: " (string (get (get state 2) 0)) ":" (string (get (get state 2) 1))) "         \n"
+      (join "click: " (get state 3)) "\n"
+      "\n"
+    )
+  )
+
+  <- state
+}
+
+on_loop = {
+  state = (set state "" 1)
+  state = (set state "" 3)
+  state = (set state loop_count 0)
+  <- state
+}
+
+on_keypress = {
+  <- (set state keypress_name 1)
+}
+
+on_move = {
+  <- (set state mouse_xy 2)
+}
+
+on_click = {
+  <- (set state "👍" 3)
+}
+
+listeners = (list 
+  (list
+    on_state
+    on_loop
+    on_keypress
+    on_move
+    on_click
+  ) 
+)
+
+state = (list 0 "" (list 0 0) "")
+
+// set up: hide cursor and clear
+(print "\e[?25l\e[2J\e[H")
+// initial render
+(on_state)
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
+
+// tear down: show cursor and clear
+(print "\e[?25h\e[2J\e[H")
+```
 
 ## Running Examples
 
