@@ -38,6 +38,15 @@ By virtue of being called from inside the `until` event loop, all event function
 The current implementation also exposes the following:
 - `keypress_name`: `string` - the name of the key pressed detected (e.g `a`, `A` `up`). Available to the keypress event function (third in list).
 - `mouse_xy`: `list` - the x (`number`) and y (`number`) coordinates  of the mouse with top left being `0 0`. Available to the mouse event functions (fourth and fifth in list).
+- `mouse_code`: `number` - the code of the mouse event captured. Available to the mouse event functions (fourth and fifth in list). Codes are as follows:
+  * `0` - left mouse click
+  * `4` - `shift` left mouse click
+  * `8` - `meta` left mouse click
+  * `16` - `control` left mouse click
+  * `32` - left click and move ("drag")
+  * `36` - `shift` left click and move ("drag")
+  * `40` - `meta` left click and move ("drag")
+  * `48` - `control` left click and move ("drag")
 
 Each event function, if defined, is expected to return a state (modified or unmodified).
 
@@ -100,7 +109,7 @@ on_move = {
 }
 
 on_click = {
-  <- (set state "👍" 3)
+  <- (set state (string mouse_code) 3)
 }
 
 listeners = (list 

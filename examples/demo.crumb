@@ -29,7 +29,7 @@ on_move = {
 }
 
 on_click = {
-  <- (set state "👍" 3)
+  <- (set state (string mouse_code) 3)
 }
 
 listeners = (list 
