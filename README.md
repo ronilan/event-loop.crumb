@@ -19,14 +19,9 @@ The `event-loop` function expects two parameters `state` and `listeners`
 A minimal example that prints a never ending progress bar will look like this:
 ```
 listeners = (list 
-  (list void {
-    (print "=")
-    // must return state
-    <- state
-  } void void void)
+  (list void { (print "=") } void void void)
 )
 
-// state needs to be anything other than void for loop to run
 state = 0
 
 // event loop
@@ -35,9 +30,9 @@ state = 0
 })
 ```
 
-Functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse move), 4 (mouse click) and finally 0 (state changed). Listeners are processed in the order in which they are listed. This means that if there are, for example three listeners, than the first function called will be the event function of the first listener and the second function called will be the loop function of the second listener and so on.
+Functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse move), 4 (mouse click) and finally 0 (state changed). Listeners are processed in the order in which they are listed. This means that if there are, for example, three listeners, than the first function called will be the event function of the first listener and the second function called will be the loop function of the second listener and so on.
 
-With Crumb's dynamic scoping, event functions are executed in loop scope. This allows event functions to "magically" access variables defined within the `until` event loop. This includes `state` and `loop_count` that are used by the native `until` loop as well as several variables originating from event capturing. See [In Scope Variables](#in-scope-variables) reference for more.
+With Crumb's dynamic scoping, event functions are executed in loop scope. Being executed in that scope allows the functions to "magically" access variables that were note explicitly passed into them. This includes `state` and `loop_count` that are used by the native `until` loop as well as several variables originating from event capturing. See [In Scope Variables](#in-scope-variables) reference for more.
 
 When an event function is not needed, it can be listed as `void`, however, if defined it is required to return a state (modified or unmodified).
 
