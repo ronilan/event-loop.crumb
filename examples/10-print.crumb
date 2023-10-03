@@ -1,0 +1,33 @@
+on_loop = {
+  // print random slash
+  (print (if (integer (add (random) 0.5)) {<- "╱"} {<- "╲"}))
+
+  <- state
+} 
+
+on_keypress = {
+  (print " key pressed:" keypress_name)
+  <- state
+}
+
+on_move = {
+  (print " mouse move" (string (get mouse_xy 0)) (string (get mouse_xy 1)))
+  <- state
+}
+
+on_click = {
+  (print " mouse click ")
+  <- state
+}
+
+listeners = (list 
+  (list void on_loop on_keypress on_move on_click)
+)
+
+// state needs to be anything other than void for loop to run
+state = 0
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start state listeners)
+})
