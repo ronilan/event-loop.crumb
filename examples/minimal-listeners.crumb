@@ -1,0 +1,25 @@
+listener_1 =   (list void {
+    (print "1")
+    <- state
+  } {
+    (print "key1")
+    <- state
+  } void void)
+
+listener_2 = (list void {
+    (print "2")
+    <- state
+  } {
+    (print "key2")
+    <- state
+  } void void)
+
+listeners = (list 
+  listener_1
+  listener_2
+)
+
+// event loop
+(use "./event-loop.crumb" {
+  <- (start 0 listeners)
+})
