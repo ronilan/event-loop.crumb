@@ -6,7 +6,7 @@ The event loop builds on Crumbs native `until` and `event` functions, providing 
 
 ## Usage
 
-1. Download https://github.com/ronilan/colors.crumb/blob/main/colors.crumb
+1. Download https://github.com/ronilan/event-loop.crumb/blob/main/event-loop.crumb
 2. Place it in your Crumb project. (see: [Crumb Template](https://github.com/liam-ilan/crumb-template) for an easy starter.)
 3. Use it.
 
