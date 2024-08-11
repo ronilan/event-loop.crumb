@@ -51,7 +51,7 @@ state = (list 0 "" (list 0 0) "")
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners 0.1)
 })
 
 // tear down: show cursor and clear

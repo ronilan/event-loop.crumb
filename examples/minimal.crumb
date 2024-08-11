@@ -11,5 +11,5 @@ state = 0
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners 0.1)
 })

@@ -48,7 +48,7 @@ on_state = {
   <- state
 }
 
-on_loop = {
+on_move = {
   // reset
   <- (list "West   " "North  " "   East" "South  ")
 }
@@ -92,10 +92,10 @@ on_click_south = {
 }
 
 listeners = (list 
-  (list on_state on_loop void void on_click_west)
-  (list on_state on_loop void void on_click_north)
-  (list on_state on_loop void void on_click_east)
-  (list on_state on_loop void void on_click_south)
+  (list on_state void void on_move on_click_west)
+  (list on_state void void on_move on_click_north)
+  (list on_state void void on_move on_click_east)
+  (list on_state void void on_move on_click_south)
 )
 
 state = (list "West   " "North  " "   East" "South  ")
@@ -109,5 +109,5 @@ state = (list "West   " "North  " "   East" "South  ")
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners void)
 })

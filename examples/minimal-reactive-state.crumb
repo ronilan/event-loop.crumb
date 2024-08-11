@@ -1,4 +1,4 @@
-on_loop = { 
+on_move = { 
   <- (add state 1)
 }
 
@@ -8,12 +8,12 @@ on_state = {
 }
 
 listeners = (list 
-  (list on_state on_loop void void void)
+  (list on_state void void on_move void)
 )
 
 state = 1
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners void)
 })
