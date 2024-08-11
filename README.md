@@ -12,9 +12,10 @@ The event loop builds on Crumbs native `until` and `event` functions, providing 
 
 ## Basics
 
-The `event-loop` function expects two parameters `state` and `listeners`
+The `event-loop` function expects three parameters: `state`, `listeners` and `time`.
 - `state` is a data structure of the user choice that will persist between loops.
 - `listeners`: `list` - a list of "entities" listening to events. Each "entity" is by itself a `list` containing exactly five event functions (a.k.a call back functions). Each of those functions will be called when each of the currently supported events happens.
+- `time`: integer or float - the time in seconds, rounded up to the nearest 100 ms, to wait for an event before looping. the value is passed to Crumb's native `event` function. If set to `void` the value will be omitted and the loop will block until an event is received. With complex applications, when no loop animation is required, setting to`void` will improve responsiveness.
 
 A minimal example that prints a never ending progress bar will look like this:
 ```
@@ -26,7 +27,7 @@ state = 0
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners 0.1)
 })
 ```
 
@@ -66,14 +67,14 @@ listeners = (list
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start 0 listeners)
+  <- (start 0 listeners 0.1)
 })
 ```
 
-The following reactive example prints bars of increasing length whenever the state changes:
+The following reactive example prints bars of increasing length whenever the mouse is moved and the state changes as a result:
 
 ```
-on_loop = { 
+on_move = { 
   <- (add state 1)
 }
 
@@ -83,14 +84,14 @@ on_state = {
 }
 
 listeners = (list 
-  (list on_state on_loop void void void) // state loop keypress move click
+  (list on_state void void on_move void)
 )
 
 state = 1
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners void)
 })
 ```
 
@@ -149,7 +150,7 @@ state = (list 0 "" (list 0 0) "")
 
 // event loop
 (use "./event-loop.crumb" {
-  <- (start state listeners)
+  <- (start state listeners 0.1)
 })
 
 // tear down: show cursor and clear
