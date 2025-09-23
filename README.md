@@ -14,13 +14,13 @@ The event loop builds on Crumbs native `until` and `event` functions, providing 
 
 The `event-loop` function expects three parameters: `state`, `listeners` and `time`.
 - `state` is a data structure of the user choice that will persist between loops.
-- `listeners`: `list` - a list of "entities" listening to events. Each "entity" is by itself a `list` containing exactly five event functions (a.k.a call back functions). Each of those functions will be called when each of the currently supported events happens.
+- `listeners`: `list` - a list of "entities" listening to events. Each "entity" is by itself a `list` containing exactly eight event functions (a.k.a call back functions). Each of those functions will be called when each of the currently supported events happens.
 - `time`: integer or float - the time in seconds, rounded up to the nearest 100 ms, to wait for an event before looping. the value is passed to Crumb's native `event` function. If set to `void` the value will be omitted and the loop will block until an event is received. With complex applications, when no loop animation is required, setting to`void` will improve responsiveness.
 
 A minimal example that prints a never ending progress bar will look like this:
 ```
 listeners = (list 
-  (list void { (print "=") } void void void)
+  (list void { (print "=") } void void void void void void)
 )
 
 state = 0
@@ -31,7 +31,7 @@ state = 0
 })
 ```
 
-Functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse move), 4 (mouse click) and finally 0 (state changed). Listeners are processed in the order in which they are listed. This means that if there are, for example, three listeners, than the first function called will be the event function of the first listener and the second function called will be the loop function of the second listener and so on.
+Functions are called in the following order: 1 (loop), 2 (keypress), 3 (mouse down), 4 (mouse up), 5 (mouse move), 6 (mouse drag), 7 (mouse scroll) and finally 0 (state changed). Listeners are processed in the order in which they are listed. This means that if there are, for example, three listeners, than the first function called will be the event function of the first listener and the second function called will be the loop function of the second listener and so on.
 
 With Crumb's dynamic scoping, event functions are executed in loop scope. Being executed in that scope allows the functions to "magically" access variables that were not explicitly passed into them. This includes `state` and `loop_count` that are used by the native `until` loop as well as several variables originating from event capturing. See [In Scope Variables](#in-scope-variables) reference for more.
 
@@ -50,7 +50,7 @@ listener_1 =   (list void {
   } {
     (print "key1")
     <- state
-  } void void)
+  } void void void void void)
 
 listener_2 = (list void {
     (print "2")
@@ -58,7 +58,7 @@ listener_2 = (list void {
   } {
     (print "key2")
     <- state
-  } void void)
+  } void void void void void)
 
 listeners = (list 
   listener_1
@@ -84,7 +84,7 @@ on_state = {
 }
 
 listeners = (list 
-  (list on_state void void on_move void)
+  (list on_state void void void void on_move void void)
 )
 
 state = 1
@@ -103,8 +103,11 @@ on_state = {
     (join
       (join "loop: " (string (get state 0))) "\n"
       (join "key: " (get state 1)) "\n"
-      (join "mouse xy: " (string (get (get state 2) 0)) ":" (string (get (get state 2) 1))) "         \n"
-      (join "click: " (get state 3)) "\n"
+      (join "down: " (get state 2)) "\n"
+      (join "up: " (get state 3)) "\n"
+      (join "move xy: " (string (get (get state 4) 0)) ":" (string (get (get state 4) 1))) "         \n"
+      (join "drag xy: " (string (get (get state 5) 0)) ":" (string (get (get state 5) 1))) "         \n"
+      (join "scroll: " (get state 6)) "\n"
       "\n"
     )
   )
@@ -114,8 +117,11 @@ on_state = {
 
 on_loop = {
   state = (set state "" 1)
+  state = (set state "" 2)
   state = (set state "" 3)
+  state = (set state "" 6)
   state = (set state loop_count 0)
+  
   <- state
 }
 
@@ -123,25 +129,40 @@ on_keypress = {
   <- (set state keypress_name 1)
 }
 
-on_move = {
-  <- (set state mouse_xy 2)
+on_down = {
+  <- (set state (string mouse_code) 2)
 }
 
-on_click = {
+on_up = {
   <- (set state (string mouse_code) 3)
+}
+
+on_move = {
+  <- (set state mouse_xy 4)
+}
+
+on_drag = {
+  <- (set state mouse_xy 5)
+}
+
+on_scroll = {
+  <- (set state (string scroll_direction) 6)
 }
 
 listeners = (list 
   (list
-    on_state
-    on_loop
-    on_keypress
-    on_move
-    on_click
+    on_state      //0
+    on_loop       //1
+    on_keypress   //2
+    on_down       //3
+    on_up         //4
+    on_move       //5
+    on_drag       //6
+    on_scroll     //7
   ) 
 )
 
-state = (list 0 "" (list 0 0) "")
+state = (list 0 "" "" "" (list 0 0) (list 0 0) "")
 
 // set up: hide cursor and clear
 (print "\e[?25l\e[2J\e[H")
@@ -228,5 +249,7 @@ Run:
   * `36` - `shift` left click and move ("drag")
   * `40` - `meta` left click and move ("drag")
   * `48` - `control` left click and move ("drag")
+
+- `scroll_direction`: `string` - the direction of scroll detected either `up`, `down` `left` `right`. Available to the scroll event function (third in list).
 
 ###### Fabriqué au Canada : Made in Canada 🇨🇦

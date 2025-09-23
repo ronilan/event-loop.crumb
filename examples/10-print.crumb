@@ -6,22 +6,38 @@ on_loop = {
 } 
 
 on_keypress = {
-  (print " key pressed:" keypress_name)
+  (print " key pressed:" keypress_name " ")
+  <- state
+}
+
+on_down = {
+  (print " mouse down ")
+  <- state
+}
+
+on_up = {
+  (print " mouse up ")
   <- state
 }
 
 on_move = {
-  (print " mouse move" (string (get mouse_xy 0)) (string (get mouse_xy 1)))
+  (print " mouse move" (string (get mouse_xy 0)) (string (get mouse_xy 1)) " ")
   <- state
 }
 
-on_click = {
-  (print " mouse click ")
+on_drag = {
+  (print " mouse drag" (string (get mouse_xy 0)) (string (get mouse_xy 1)) " ")
   <- state
 }
+
+on_scroll = {
+  (print " scroll "  scroll_direction " " )
+  <- state
+}
+
 
 listeners = (list 
-  (list void on_loop on_keypress on_move on_click)
+  (list void on_loop on_keypress on_down on_up on_move on_drag on_scroll)
 )
 
 // state needs to be anything other than void for loop to run

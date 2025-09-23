@@ -4,7 +4,7 @@ listener_1 =   (list void {
   } {
     (print "key1")
     <- state
-  } void void)
+  } void void void void void)
 
 listener_2 = (list void {
     (print "2")
@@ -12,7 +12,7 @@ listener_2 = (list void {
   } {
     (print "key2")
     <- state
-  } void void)
+  } void void void void void)
 
 listeners = (list 
   listener_1

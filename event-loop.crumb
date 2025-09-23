@@ -88,7 +88,7 @@ start = { state listeners time ->
     state = (if (greater_than (length curr) 6) {
         // base
         // 0, 1, 2 - mouse button clicked (generally from left to right)
-        // 32 move - (35 means 32 + 3 button is "released")
+        // 32 move/drag - (35 means 32 + 3 button is "released")
         // 64 scroll up  (64 means 64 + 0 button is pressed, thus scroll)
         // modifiers
         // +4 shift
@@ -98,33 +98,86 @@ start = { state listeners time ->
         // [<35;12;7M
 
         <- (if (is (get curr 1 3) "[<") {
-          first_delimiter = (find curr ";")
+          _first_delimiter = (find curr ";")
 
-          mouse_code = (integer (get curr 3 first_delimiter))
-          mouse_row_column = (get curr (add first_delimiter 1) (subtract (length curr) 1))
+          mouse_code = (integer (get curr 3 _first_delimiter))
+          mouse_row_column = (get curr (add _first_delimiter 1) (subtract (length curr) 1))
 
-          second_delimiter = (find mouse_row_column ";")
+          _second_delimiter = (find mouse_row_column ";")
+
+          _last_char = (get curr (subtract (length curr) 1))
 
           mouse_xy = (list 
-            (subtract (integer (get mouse_row_column 0 second_delimiter)) 1)
-            (subtract (integer (get mouse_row_column (add 1 second_delimiter) (length mouse_row_column))) 1)
+            (subtract (integer (get mouse_row_column 0 _second_delimiter)) 1)
+            (subtract (integer (get mouse_row_column (add 1 _second_delimiter) (length mouse_row_column))) 1)
           )
 
-          // mouse move
-          state = (reduce_listeners 3)
+          scroll_direction = ""
 
-          // mouse click (with modifiers)
+          // mouse down and mouse up (with modifiers)
           state = (if (or 
             (is mouse_code 0)
             (is mouse_code 4)
             (is mouse_code 8)
             (is mouse_code 16)
+          ) {
+            <- (if (is _last_char "M") {
+              <- (reduce_listeners 3)
+            } (is _last_char "m") {
+              <- (reduce_listeners 4)
+            })
+          } {<- state})
+
+          // mouse move and drag
+          state = (if (or 
+            (is mouse_code 35)
+            (is mouse_code 39)
+            (is mouse_code 44)
+            (is mouse_code 51)
+          ) {
+            <- (reduce_listeners 5)
+          } (or 
             (is mouse_code 32)
             (is mouse_code 36)
             (is mouse_code 40)
             (is mouse_code 48)
           ) {
-            <- (reduce_listeners 4)
+            <- (reduce_listeners 6)
+          } {<- state})
+
+          // mouse down and mouse up (with modifiers)
+          state = (if (or 
+            (is mouse_code 64)
+            (is mouse_code 68)
+            (is mouse_code 72)
+            (is mouse_code 80)
+          ) {
+            scroll_direction = "up"
+            <- (reduce_listeners 7)
+          } (or 
+            (is mouse_code 65)
+            (is mouse_code 69)
+            (is mouse_code 73)
+            (is mouse_code 81)
+          ) {
+            scroll_direction = "down"
+            <- (reduce_listeners 7)
+          } (or 
+            (is mouse_code 66)
+            (is mouse_code 70)
+            (is mouse_code 74)
+            (is mouse_code 82)
+          ) {
+            scroll_direction = "left"
+            <- (reduce_listeners 7)
+          } (or 
+            (is mouse_code 67)
+            (is mouse_code 71)
+            (is mouse_code 75)
+            (is mouse_code 83)
+          ) {
+            scroll_direction = "right"
+            <- (reduce_listeners 7)
           } {<- state})
 
           <- state

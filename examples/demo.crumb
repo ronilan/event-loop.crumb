@@ -4,8 +4,11 @@ on_state = {
     (join
       (join "loop: " (string (get state 0))) "\n"
       (join "key: " (get state 1)) "\n"
-      (join "mouse xy: " (string (get (get state 2) 0)) ":" (string (get (get state 2) 1))) "         \n"
-      (join "click: " (get state 3)) "\n"
+      (join "down: " (get state 2)) "\n"
+      (join "up: " (get state 3)) "\n"
+      (join "move xy: " (string (get (get state 4) 0)) ":" (string (get (get state 4) 1))) "         \n"
+      (join "drag xy: " (string (get (get state 5) 0)) ":" (string (get (get state 5) 1))) "         \n"
+      (join "scroll: " (get state 6)) "\n"
       "\n"
     )
   )
@@ -15,8 +18,11 @@ on_state = {
 
 on_loop = {
   state = (set state "" 1)
+  state = (set state "" 2)
   state = (set state "" 3)
+  state = (set state "" 6)
   state = (set state loop_count 0)
+  
   <- state
 }
 
@@ -24,25 +30,40 @@ on_keypress = {
   <- (set state keypress_name 1)
 }
 
-on_move = {
-  <- (set state mouse_xy 2)
+on_down = {
+  <- (set state (string mouse_code) 2)
 }
 
-on_click = {
+on_up = {
   <- (set state (string mouse_code) 3)
+}
+
+on_move = {
+  <- (set state mouse_xy 4)
+}
+
+on_drag = {
+  <- (set state mouse_xy 5)
+}
+
+on_scroll = {
+  <- (set state (string scroll_direction) 6)
 }
 
 listeners = (list 
   (list
-    on_state
-    on_loop
-    on_keypress
-    on_move
-    on_click
+    on_state      //0
+    on_loop       //1
+    on_keypress   //2
+    on_down       //3
+    on_up         //4
+    on_move       //5
+    on_drag       //6
+    on_scroll     //7
   ) 
 )
 
-state = (list 0 "" (list 0 0) "")
+state = (list 0 "" "" "" (list 0 0) (list 0 0) "")
 
 // set up: hide cursor and clear
 (print "\e[?25l\e[2J\e[H")

@@ -55,8 +55,11 @@ listeners = (list (list
   "void" // state
   on_loop //loop
   on_keypress // keypress
+  void // down
+  void // up
   void // move
-  void // click
+  void // drag
+  void // scroll
 ))
 
 // set up: hide cursor and clear
